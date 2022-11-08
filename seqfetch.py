@@ -13,7 +13,7 @@ proteinfam = input("Enter desired protein name:")
 #I then used efectch to grab the sequence data for each of these protein entries
 #Within efetch I also specified to output the data into a file in msf format for the next step
 #This output file is named based on the taxonid
-searchcommand = "esearch -db protein -query '"+taxon+"[Organism:exp] AND "+proteinfam+"[Protein Name] NOT Partial' | efetch -format msf > "+taxon+".prot.msf"
+searchcommand = "esearch -db protein -query '"+taxon+"[Organism:exp] AND "+proteinfam+"[Protein Name] NOT Partial' | efetch -format fasta > "+taxon+".prot.fa"
 print(searchcommand)
 #Now using os.system to run the searchcommand in bash
 os.system(searchcommand)
