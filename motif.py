@@ -17,7 +17,9 @@ with open("headers.txt") as file:
 with open("seqs.txt") as file:
     seqs = file.read()
 
-seqlist = seqs.split("_")
+seqlist1 = seqs.split("\n\n")
+seqstr = " \n".join(seqlist1)
+seqlist = seqstr.split(" ")
 headerlist = headers.split("\n")
 if seqlist[0] == '':
     seqlist = seqlist[1:] #This DOES cut off first empty space
