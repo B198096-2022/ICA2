@@ -1,32 +1,4 @@
 #!/bin/python3
-import requests
-import os
-import shutil
-
-#Make the directory for the prosite files
-os.mkdir("./prositedir")
-
-#The url where these files are stored
-dat_url = "https://ftp.expasy.org/databases/prosite/prosite.dat"
-doc_url = "https://ftp.expasy.org/databases/prosite/prosite.doc"
-#File1 is technically the website associated with the url
-#But the contents of these url is just the contents of the document we want
-#Then we just open a file called what we want and write in the contnets of the file1/2
-file1 = requests.get(dat_url)
-open("prosite.dat", "wb").write(file1.content)
-
-file2 = requests.get(doc_url)
-open("prosite.doc", "wb").write(file2.content)
-#Then this is moving the files into the directory
-shutil.move("./prosite.dat", "./prositedir/prosite.dat")
-shutil.move("./prosite.doc", "./prositedir/prosite.doc")
-
-
-#Then this runs the prosextract
-os.system("prosextract -prositedir prositedir")
-
-
-#!/bin/python3
 #This code splits up the protein seqiences into fasta headers and sequences
 #Puts a "_" to deliminate the sequences
 #Open the files in python then split them into a list
@@ -67,11 +39,14 @@ testdict = {}
 testdict[headerlist[0]] = seqlist[0]
 testdict[headerlist[1]] = seqlist[1]
 
-#Thinking I'll need to make an actual fasta file and then read in the file
+#Making individual fasta files works better!
 
 for head, seq in testdict.items():
-    headline = head.split()
-    name = (headline[0])
     fasta = name+ os.linesep +seq
-    command = "patmatmotifs -full -sequence "+fasta+" -sprotein1 YES -sformat1 fasta"
+    headline = head.split()
+    code = (headline[0])
+    code = code[1:-3]
+    with open("{}.fa".format(code),"w") as my_file:
+         my_file.write(fasta)
+    command = "patmatmotifs -full -sequence "+code+".fa -sprotein1 YES -sformat1 fasta -outfile "+code+".patmatmotifs"
     os.system(command)
