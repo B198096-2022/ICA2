@@ -7,3 +7,7 @@ os.system(clustercommand)
 
 plotconcommand = "plotcon -sformat msf "+taxon+"align.msf -graph cps" 
 os.system(plotconcommand)
+
+#This generates a file with the alignment info for each protein
+infocommand = "infoalign "+taxon+"align.msf -outfile "+taxon+"aligninfo.txt -only -heading -name -seqlength -idcount -simcount -diffcount -change"
+os.system(infocommand)
