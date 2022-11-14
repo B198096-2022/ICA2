@@ -71,3 +71,5 @@ seqdict = {}
 seqdict[headerlist[0]] = seqlist[0]
 for i in range(dictlen):
     seqdict[headerlist[i]] = seqlist[i]
+
+
