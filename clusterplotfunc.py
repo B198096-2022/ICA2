@@ -10,4 +10,4 @@ def clusterplotfunc(taxon):
 
     #This generates a file with the alignment info for each protein
     infocommand = "infoalign "+taxon+"align.msf -outfile "+taxon+"aligninfo.txt -only -heading -name -seqlength -idcount -simcount -diffcount -change"
-    os.system(infocommand)
+    os.system(infocommand)  
