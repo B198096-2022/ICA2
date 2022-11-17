@@ -1,12 +1,19 @@
-#Just defining this function that I will end up using in the pipeline :)
+#!/bin/python3
+#motiffunc('txid4890_300-500')
+#This function doesn't need the first block of code to make the library, since
+#This code is already in the pipeline
+#However, one of the other professors said that functions should be as self sufficient as possible
+#So I figured I should included it within the function here as well
 def motiffunc(taxon):
-    headercommand = "grep '>' "+taxon+".fa > headers.txt"
-    seqscommand = "awk '/^>/ { print '_'; next; }; {print; }' "+taxon+".fa > seqs.txt"
+    import os
+    import shutil
+    headercommand = "grep '>' "+taxon+".fa > "+taxon+"_headers.txt"
+    seqscommand = "awk '/^>/ { print '_'; next; }; {print; }' "+taxon+".fa > "+taxon+"_seqs.txt"
     os.system(headercommand)
     os.system(seqscommand)
-    with open("headers.txt") as file:
+    with open(taxon+"_headers.txt") as file:
         headers = file.read()
-    with open("seqs.txt") as file:
+    with open(taxon+"_seqs.txt") as file:
         seqs = file.read()
     seqlist1 = seqs.split("\n\n")
     seqstr = " \n".join(seqlist1)
@@ -16,6 +23,8 @@ def motiffunc(taxon):
         seqlist = seqlist[1:] #This DOES cut off first empty space
     if seqlist[-1] == '':
         seqlist = seqlist[0:-1] #This does nothing
+    if seqlist[-1] == '\n':
+        seqlist = seqlist[0:-1] #This removes an extra '\n' at the end if its there
     if headerlist[0] == '':
         headerlist = headerlist[1:] #This does nothing
     if headerlist[-1] == '':
@@ -40,3 +49,4 @@ def motiffunc(taxon):
         os.system(command)
         shutil.move("./"+code+".patmatmotifs", "./"+taxon+"_patmatmotifs/"+code+".patmatmotifs")
         shutil.move("./"+code+".fa", "./"+taxon+"_indifasta/"+code+".fa")
+

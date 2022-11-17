@@ -1,6 +1,21 @@
 #!/bin/python3
-def filterfunc(taxon):  #filterfunc('txid4890')
+
+#Put error if you only put one sequence in (can't align!)
+#Makesure max and min are not too big and too small, respectively
+#For pipe do try and except for if the search doesn't work is os.system returns 0 or 1
+
+from whichanalyses import *
+import os
+
+
+def filterfunc(taxon, seqdf):  #filterfunc('txid4890')
     seqdfnew = seqdf
+    seqdf = seqdf
+    minlen=0
+    maxlen='all'
+    oneseq = 'no'
+    lengthfilter='no'
+    lengthcriteria = 'none'
     lengthfilter = input("would you like to filter by sequence length? (yes/no):")
     while lengthfilter.upper() != 'YES' and lengthfilter.upper() != 'NO':
         print("Answer not yes or no value")
@@ -10,25 +25,26 @@ def filterfunc(taxon):  #filterfunc('txid4890')
         while lengthcriteria.upper() != 'MAXIMUM' and lengthcriteria.upper() != 'MINIMUM' and lengthcriteria.upper() != 'BOTH':
             print("Answer not one of the options")
             lengthcriteria = input("would you like to filter by sequence length maximum, minimum, or both?")
-    if lengthcriteria.upper() == "MAXIMUM":
-        seqdfnew = maxfunc()
-    if lengthcriteria.upper() == "MINIMUM":
-        seqdfnew = minfunc()
-    if lengthcriteria.upper() == "BOTH":
-        seqdfnew = maxfunc()
-        seqdfnew = minfunc(seqdfnew)
-    taxfilter = input("Would you like to filter by genera, species, both, or none?:")
-    while taxfilter.upper() != 'GENERA' and taxfilter.upper() != 'SPECIES' and taxfilter.upper() != 'BOTH' and taxfilter.upper() != 'NONE':
-        print("Answer not one of options: genera, species, both, or none")
+        if lengthcriteria.upper() == "MAXIMUM":
+            seqdfnew,maxlen,oneseq = maxfunc(seqdfnew)
+        if lengthcriteria.upper() == "MINIMUM":
+            seqdfnew,minlen,oneseq = minfunc(seqdfnew)
+        if lengthcriteria.upper() == "BOTH":
+            seqdfnew,maxlen,oneseq = maxfunc(seqdfnew)
+            seqdfnew,minlen,oneseq = minfunc(seqdfnew)
+    if oneseq == 'no':
         taxfilter = input("Would you like to filter by genera, species, both, or none?:")
-    if taxfilter.upper() == 'GENERA':
-        generafunc(lengthfilter.upper())
-    if taxfilter.upper() == 'SPECIES':
-        speciesfunc(lengthfilter.upper())
-    if taxfilter.upper() == 'BOTH':
-        taxfunc(lengthfilter.upper())
-    if taxfilter.upper() == 'NONE':
-        onlylengthfunc(lengthfilter.upper())
+        while taxfilter.upper() != 'GENERA' and taxfilter.upper() != 'SPECIES' and taxfilter.upper() != 'BOTH' and taxfilter.upper() != 'NONE':
+            print("Answer not one of options: genera, species, both, or none")
+            taxfilter = input("Would you like to filter by genera, species, both, or none?:")
+        if taxfilter.upper() == 'GENERA':
+            generafunc(seqdfnew,lengthfilter.upper(),lengthcriteria.upper(),maxlen,minlen,oneseq)
+        if taxfilter.upper() == 'SPECIES':
+            speciesfunc(seqdfnew,lengthfilter.upper(),lengthcriteria.upper(),maxlen,minlen,oneseq)
+        if taxfilter.upper() == 'BOTH':
+            taxfunc(seqdfnew,lengthfilter.upper(),lengthcriteria.upper(),maxlen,minlen,oneseq)
+        if taxfilter.upper() == 'NONE':
+            onlylengthfunc(seqdfnew,lengthfilter.upper(),lengthcriteria.upper(),maxlen,minlen,taxon,oneseq)
 
 
 
@@ -37,7 +53,7 @@ def filterfunc(taxon):  #filterfunc('txid4890')
 
 
 
-def maxfunc():
+def maxfunc(x):
     maxlen = input("Maximum desired sequence length:")
     try:
         maxlen = int(maxlen)
@@ -45,9 +61,9 @@ def maxfunc():
         print("maximum length not an integer")
         maxlen = input("Maximum desired sequence length:")
         maxlen = int(maxlen)
-    while maxlen > int(seqdf.describe().max()):
+    while maxlen > int(x.describe().max()):
         print("Maximum length input is larger than any sequence in your results")
-        print("The longest sequence in your results has a length of "+str(int(seqdf.describe().max())))
+        print("The longest sequence in your results has a length of "+str(int(x.describe().max())))
         maxlen = input("Maximum desired sequence length:")
         try:
             maxlen = int(maxlen)
@@ -55,8 +71,23 @@ def maxfunc():
             print("maximum length not an integer")
             maxlen = input("Maximum desired sequence length:")
             maxlen = int(maxlen)
-    seqdfnew = seqdf[seqdf['SeqLength'] < maxlen]
-    return(seqdfnew)
+    while maxlen < int(x.describe().min()):
+        print("Maximum length input is smaller than any sequence in your results")
+        print("The shortest sequence in your results has a length of "+str(int(x.describe().min())))
+        maxlen = input("Maximum desired sequence length:")
+        try:
+            maxlen = int(maxlen)
+        except ValueError:
+            print("maximum length not an integer")
+            maxlen = input("Maximum desired sequence length:")
+            maxlen = int(maxlen)
+    seqdfnew = x[x['SeqLength'] < maxlen]
+    oneseq = 'no'
+    if seqdfnew.shape[0] <= 1:
+        print("You have filtered to a single sequence, alignment analysis is not possible")
+        print("You will be redirected to the beginning of the selection process")
+        oneseq = 'yes'
+    return(seqdfnew,maxlen,oneseq)
 
 
 
@@ -68,9 +99,19 @@ def minfunc(x):
         print("minimum length not an integer")
         minlen = input("Minimum desired sequence length:")
         minlen = int(minlen)
-    while minlen < int(seqdf.describe().min()):
+    while minlen < int(x.describe().min()):
         print("Minimum length input is smaller than any sequence in your results")
-        print("The shortest sequence in your results has a length of "+str(int(seqdf.describe().min())))
+        print("The shortest sequence in your results has a length of "+str(int(x.describe().min())))
+        minlen = input("Minimum desired sequence length:")
+        try:
+            minlen = int(minlen)
+        except ValueError:
+            print("minimum length not an integer")
+            minlen = input("Minimum desired sequence length:")
+            maxlen = int(minlen)
+    while minlen > int(x.describe().max()):
+        print("Minimum length input is larger than any sequence in your results")
+        print("The longest sequence in your results has a length of "+str(int(x.describe().max())))
         minlen = input("Minimum desired sequence length:")
         try:
             minlen = int(minlen)
@@ -79,14 +120,18 @@ def minfunc(x):
             minlen = input("Minimum desired sequence length:")
             maxlen = int(minlen)
     seqdfnew = x[x['SeqLength'] > minlen]
-    return(seqdfnew)
+    oneseq = 'no'
+    if seqdfnew.shape[0] <= 1:
+        print("You have filtered to a single sequence, alignment analysis is not possible")
+        oneseq = 'yes'
+    return(seqdfnew,minlen,oneseq)
 
 
 
-def generafunc(x):
-    print(seqdfnew['Genus'].value_counts().to_string())
+def generafunc(x,y,lencrit,maxlen,minlen,oneseq):
+    print(x['Genus'].value_counts().to_string())
     print('These are the genera returned by your search')
-    generastr = seqdfnew['Genus'].value_counts().to_string()
+    generastr = x['Genus'].value_counts().to_string()
     print("Which genus or genera would you like to filter for? \n enter desired genera as Genus1 or Genus1,Genus2,GenusN:")
     genusin = input("Desired genus:")  #Penicillium,Wilcoxina
     genusinput = genusin.split(",")
@@ -98,31 +143,34 @@ def generafunc(x):
             for genus in genusinput:
                 genus = genus
     genuslabel = '_and_'.join(genusinput)
-    if x == "YES":
-        if lengthcriteria.upper() == "MINIMUM":
-            lengthlabel = genuslabel+"_minlen"+str(minlen)
-        if lengthcriteria.upper() == "MAXIMUM":
-            lengthlabel = genuslabel+"_maxlen"+str(minlen)
-        if lengthcriteria.upper() == "BOTH":
+    lengthlabel = genuslabel
+    if y == "YES":
+        if lencrit == "MINIMUM":
+            lengthlabel = genuslabel+"_minlen_"+str(minlen)
+        if lencrit == "MAXIMUM":
+            lengthlabel = genuslabel+"_maxlen_"+str(maxlen)
+        if lencrit == "BOTH":
             lengthlabel = genuslabel+"_"+str(minlen)+"-"+str(maxlen)
-    des_gen_df = seqdfnew[seqdfnew['Genus'].isin(genusinput)]
+    des_gen_df = x[x['Genus'].isin(genusinput)]
     des_gen_fa_df = des_gen_df.iloc[:, 3:5]
-    des_gen_fa_df.to_csv("{}bad.fa".format(genuslabel), header=None, index=None, sep=' ')
-    with open("{}bad.fa".format(genuslabel)) as file:
+    des_gen_fa_df.to_csv("{}bad.fa".format(lengthlabel), header=None, index=None, sep=' ')
+    if des_gen_df.shape[0] <= 1:
+        print("You have filtered to a single sequence, alignment analysis is not possible")
+        oneseq = 'yes'
+    with open("{}bad.fa".format(lengthlabel)) as file:
         new = ''
         for line in file:
             newline = line.replace("\"", '')
             new = new + newline
-        with open("{}.fa".format(genuslabel),"w") as my_file:
+        with open("{}.fa".format(lengthlabel),"w") as my_file:
              my_file.write(new)
-    from whichanalyses import *
-    whichanalysisfunc(genuslabel)
+    whichanalysisfunc(lengthlabel,oneseq)
 
 
-def speciesfunc(x):
-    print(seqdfnew['Species'].value_counts().to_string())
+def speciesfunc(x,y,lencrit,maxlen,minlen,oneseq):
+    print(x['Species'].value_counts().to_string())
     print('These are the species returned by your search')
-    specstr = seqdfnew['Species'].value_counts().to_string()
+    specstr = x['Species'].value_counts().to_string()
     print("Which species would you like to filter for? \n enter desired species as Spescies1 or Spescies1,Spescies2,SpesciesN:")
     speciesin = input("Desired species:")  #ucsense
     speciesinput = speciesin.split(",")
@@ -134,31 +182,34 @@ def speciesfunc(x):
             for species in speciesinput:
                 species = species
     specieslabel = '_and_'.join(speciesinput)
-    if x == "YES":
-        if lengthcriteria.upper() == "MINIMUM":
-            lengthlabel = specieslabel+"_minlen"+str(minlen)
-        if lengthcriteria.upper() == "MAXIMUM":
-            lengthlabel = specieslabel+"_maxlen"+str(minlen)
-        if lengthcriteria.upper() == "BOTH":
+    lengthlabel = specieslabel
+    if y == "YES":
+        if lencrit == "MINIMUM":
+            lengthlabel = specieslabel+"_minlen_"+str(minlen)
+        if lencrit == "MAXIMUM":
+            lengthlabel = specieslabel+"_maxlen_"+str(maxlen)
+        if lencrit == "BOTH":
             lengthlabel = specieslabel+"_"+str(minlen)+"-"+str(maxlen)
-    des_spec_df = seqdfnew[seqdfnew['Species'].isin(speciesinput)]
+    des_spec_df = x[x['Species'].isin(speciesinput)]
     des_spec_fa_df = des_spec_df.iloc[:, 3:5]
-    des_spec_fa_df.to_csv("{}bad.fa".format(specieslabel), header=None, index=None, sep=' ')
-    with open("{}bad.fa".format(specieslabel)) as file:
+    des_spec_fa_df.to_csv("{}bad.fa".format(lengthlabel), header=None, index=None, sep=' ')
+    if des_spec_df.shape[0] <= 1:
+        print("You have filtered to a single sequence, alignment analysis is not possible")
+        oneseq = 'yes'
+    with open("{}bad.fa".format(lengthlabel)) as file:
         new = ''
         for line in file:
             newline = line.replace("\"", '')
             new = new + newline
-        with open("{}.fa".format(specieslabel),"w") as my_file:
+        with open("{}.fa".format(lengthlabel),"w") as my_file:
              my_file.write(new)
-    from whichanalyses import *
-    whichanalysisfunc(specieslabel)
+    whichanalysisfunc(lengthlabel,oneseq)
 
 
-def taxfunc(x):
-    print(seqdfnew['Taxon'].value_counts().to_string())
+def taxfunc(x,y,lencrit,maxlen,minlen,oneseq):
+    print(x['Taxon'].value_counts().to_string())
     print('These are the taxa returned by your search')
-    taxstr = seqdfnew['Taxon'].value_counts().to_string()
+    taxstr = x['Taxon'].value_counts().to_string()
     print("Which taxa would you like to filter for? \n enter desired taxa as Genus1 Spescies1 or Genus1 Spescies1,Genus2 Spescies2,GenusN SpesciesN:")
     print("For example, to filter for Penicillium brasilianum and Penicillium ucsense")
     print("Enter Penicillium brasilianum,Penicillium ucsense")
@@ -173,38 +224,45 @@ def taxfunc(x):
                 taxa = taxa
     taxlabel_intermediate = '_and_'.join(taxinput)
     taxlabel = taxlabel_intermediate.replace(' ', '-')
-    if x == "YES":
-        if lengthcriteria.upper() == "MINIMUM":
-            lengthlabel = taxlabel+"_minlen"+str(minlen)
-        if lengthcriteria.upper() == "MAXIMUM":
-            lengthlabel = taxlabel+"_maxlen"+str(minlen)
-        if lengthcriteria.upper() == "BOTH":
+    lengthlabel = taxlabel
+    if y == "YES":
+        if lencrit == "MINIMUM":
+            lengthlabel = taxlabel+"_minlen_"+str(minlen)
+        if lencrit == "MAXIMUM":
+            lengthlabel = taxlabel+"_maxlen_"+str(maxlen)
+        if lencrit == "BOTH":
             lengthlabel = taxlabel+"_"+str(minlen)+"-"+str(maxlen)
-    des_tax_df = seqdfnew[seqdfnew['Taxon'].isin(taxinput)]
+    des_tax_df = x[x['Taxon'].isin(taxinput)]
     des_tax_fa_df = des_tax_df.iloc[:, 3:5]
-    des_tax_fa_df.to_csv("{}bad.fa".format(taxlabel), header=None, index=None, sep=' ')
-    with open("{}bad.fa".format(taxlabel)) as file:
+    des_tax_fa_df.to_csv("{}bad.fa".format(lengthlabel), header=None, index=None, sep=' ')
+    if des_tax_df.shape[0] <= 1:
+        print("You have filtered to a single sequence, alignment analysis is not possible")
+        oneseq = 'yes'
+    with open("{}bad.fa".format(lengthlabel)) as file:
         new = ''
         for line in file:
             newline = line.replace("\"", '')
             new = new + newline
-        with open("{}.fa".format(taxlabel),"w") as my_file:
+        with open("{}.fa".format(lengthlabel),"w") as my_file:
              my_file.write(new)
-    from whichanalyses import *
-    whichanalysisfunc(taxlabel)
+    whichanalysisfunc(lengthlabel,oneseq)
 
 
-def onlylengthfunc(x):
-    if lengthfilter.upper() == "NO":
+def onlylengthfunc(x,y,lencrit,maxlen,minlen,taxon,oneseq):
+    if y == "NO":
         print("You did not specified any filters to apply")
-    if x == "YES":
-        if lengthcriteria.upper() == "MINIMUM":
-            lengthlabel = taxon+"_minlen"+str(minlen)
-        if lengthcriteria.upper() == "MAXIMUM":
-            lengthlabel = taxon+"_maxlen"+str(minlen)
-        if lengthcriteria.upper() == "BOTH":
+    if y == "YES":
+        if lencrit == "MINIMUM":
+            lengthlabel = taxon+"_minlen_"+str(minlen)
+        if lencrit == "MAXIMUM":
+            lengthlabel = taxon+"_maxlen_"+str(maxlen)
+        if lencrit == "BOTH":
             lengthlabel = taxon+"_"+str(minlen)+"-"+str(maxlen)
-        seqdfnew.to_csv("{}bad.fa".format(lengthlabel), header=None, index=None, sep=' ')
+        onlylen_df = x.iloc[:, 3:5]
+        onlylen_df.to_csv("{}bad.fa".format(lengthlabel), header=None, index=None, sep=' ')
+        if onlylen_df.shape[0] <= 1:
+            print("You have filtered to a single sequence, alignment analysis is not possible")
+            oneseq = 'yes'
         with open("{}bad.fa".format(lengthlabel)) as file:
             new = ''
             for line in file:
@@ -212,6 +270,5 @@ def onlylengthfunc(x):
                 new = new + newline
             with open("{}.fa".format(lengthlabel),"w") as my_file:
                  my_file.write(new)
-        from whichanalyses import *
-        whichanalysisfunc(lengthlabel)
+        whichanalysisfunc(lengthlabel,oneseq)
 

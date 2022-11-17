@@ -51,7 +51,6 @@ if partial.upper() == 'YES':
     #Now using os.system to run the searchcommand in bash
     os.system(searchcommand)
 
-
 with open("{}.fa".format(taxon)) as file:
         contents = file.read()
 
@@ -59,6 +58,7 @@ with open("{}.fa".format(taxon)) as file:
 
 if contents == '':
     print("Search has failed")
+    print("Cause of failure is presented above")
     print("Exiting program, please try new search")
     exit()
 
@@ -169,13 +169,16 @@ if seqdf.shape[0] == 1:
     while oneseqcontinue.upper() != "YES" and continue1.upper() != "NO":
         print("Answer not yes or no value")
         oneseqcontinue = input("Would you like to conitnue? (yes/no):")
-    if oneseqcontinue.upper() == 'NO':
-        print("You have chosen to exit the program")
-        exit()
-    if oneseqcontinue.upper() == 'YES':
-        first = 'yes'
-        from whichanalyses import *
-        whichanalysisfunc(taxon,oneseq,first)
+
+if oneseqcontinue.upper() == 'NO':
+    print("You have chosen to exit the program")
+    exit()
+
+
+if oneseqcontinue.upper() == 'YES':
+    first = 'yes'
+    from whichanalyses import *
+    whichanalysisfunc(taxon,oneseq,first)
 
 
 
@@ -241,27 +244,3 @@ while again.upper() == 'YES':
         again = input("Would you like to perform more analyses? (yes/no):")
 if again.upper() == "NO":
     print("I suppose that you would like to exit the program then. Now exiting")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-
