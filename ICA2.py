@@ -1,4 +1,6 @@
-e are all of the modules I will need
+#!/bin/bash/python3
+
+#These are all of the modules I will need
 import os
 import shutil
 import requests
