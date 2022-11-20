@@ -13,9 +13,15 @@ import pandas as pd
 #That will continue to output the error message and prompt the user to renter
 #The input until the input is acceptable
 taxonid = input("Enter desired taxonid:") #txid4890
-while ' ' in taxonid:
-    print("You can not enter black spaces in the taxonid")
+while 'txid' not in taxonid:
+    print("taxonid must begin with 'txid'")
     taxonid = input("Enter desired taxonid:")
+while ' ' in taxonid:
+    print("You can not enter blank spaces in the taxonid")
+    taxonid = input("Enter desired taxonid:")
+    while 'txid' not in taxonid:
+        print("taxonid must begin with 'txid'")
+        taxonid = input("Enter desired taxonid:")
 
 #Asking the user to add a protein family name
 proteinfam = input("Enter desired protein name:") #pyruvate dehydrogenase
