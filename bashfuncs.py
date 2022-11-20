@@ -49,6 +49,7 @@ def aligninfofunc(taxon):
     #This generates a file with the alignment info for each protein
     infocommand = "infoalign "+taxon+"align.msf -outfile "+taxon+"_aligninfo.txt -only -heading -name -seqlength -idcount -simcount -diffcount -change"
     displaycommand = "head -10 "+taxon+"_aligninfo.txt"
+    print("The full set of alignment info is written in "+taxon+"_aligninfo.txt")
     os.system(infocommand)
     os.system(displaycommand)
 
@@ -72,5 +73,6 @@ def prettyplotfunc(taxon):
     prettycommand = "prettyplot "+taxon+"align.msf -sformat1 msf -docolour -graph cps -goutfile "+taxon+"_prettyplot"
     os.system(prettycommand)
     displaycommand = "display "+taxon+"_prettyplot.ps"
-    os.system(displaycommand) 
+    os.system(displaycommand)
+
 
