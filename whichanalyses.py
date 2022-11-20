@@ -37,13 +37,13 @@ def whichanalysisfunc(taxon, oneseq = 'no',first='no'):
             #If they say no then the program asks one at a time if they
             #Want to do each of the analyses individually
             #Does an error check on the yes/no Answer
-            #And if yes calls the function and executes it 
+            #And if yes calls the function and executes it
             analysis1 = input("Would you like to produce a conservation plot of the sequences? (yes/no):")
             while analysis1.upper() != "YES" and analysis1.upper() != "NO":
                 print("Answer not yes or no value")
                 analysis1 = input("Would you like to produce a conservation plot of the sequences? (yes/no):")
             if analysis1.upper() == "YES":
-                aligninfofunc(taxon)
+                plotconfunc(taxon)
             analysis4 = input("Would you like to view alignment iformation on the sequences? (yes/no):")
             while analysis4.upper() != "YES" and analysis1.upper() != "NO":
                 print("Answer not yes or no value")
@@ -73,7 +73,7 @@ def whichanalysisfunc(taxon, oneseq = 'no',first='no'):
         #And now asks if they woudl like to still do motif analysis
         stillmotif = input("Would you still like to perform motif analysis on your single selected sequence? (yes/no):")
         #Error check on input
-        while stillmotif.upper() != "YES" and analysis1.upper() != "NO":
+        while stillmotif.upper() != "YES" and stillmotif.upper() != "NO":
             print("Answer not yes or no value")
             stillmotif = input("Would you still like to perform motif analysis on your single selected sequence? (yes/no):")
         #If they would like to still do motif analysis then the motif functions are called
