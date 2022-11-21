@@ -51,8 +51,16 @@ def motiffunc(taxon):
     #I first need to make a directory for the outputs
     #And I also need to make individual fasta files to run patmatmotifs on
     #So for the sake of organization I also made a directory for those
-    os.mkdir("./"+taxon+"_patmatmotifs")
-    os.mkdir("./"+taxon+"_indifasta")
+    #If the directories already exist then the program crashes, so this will
+    #Try to make it, and if it already exists will inform the user and cary on
+    try:
+        os.mkdir("./"+taxon+"_patmatmotifs")
+    except:
+        print("directory "+taxon+"_patmatmotifs already exists, adding files to directory" )
+    try:
+        os.mkdir("./"+taxon+"_indifasta")
+    except:
+        print("directory "+taxon+"_indifasta already exists, adding files to directory" )
     #I am now making the individual fasta files
     for head, seq in seqdict.items():
         #The variable fasta just pastes the header and sequence together

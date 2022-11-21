@@ -24,4 +24,3 @@ shutil.move("./prosite.doc", "./prositedir/prosite.doc")
 
 #Then this runs the prosextract
 os.system("prosextract -prositedir prositedir")
-

@@ -44,10 +44,10 @@ def whichanalysisfunc(taxon, oneseq = 'no',first='no'):
                 analysis1 = input("Would you like to produce a conservation plot of the sequences? (yes/no):")
             if analysis1.upper() == "YES":
                 plotconfunc(taxon)
-            analysis4 = input("Would you like to view alignment iformation on the sequences? (yes/no):")
+            analysis4 = input("Would you like to view alignment information on the sequences? (yes/no):")
             while analysis4.upper() != "YES" and analysis1.upper() != "NO":
                 print("Answer not yes or no value")
-                analysis4 = input("Would you like to view alignment iformation on the sequences? (yes/no):")
+                analysis4 = input("Would you like to view alignment information on the sequences? (yes/no):")
             if analysis4.upper() == "YES":
                 aligninfofunc(taxon)
             analysis2 = input("Would you like to see a pretty plot of alignments for the sequences? (yes/no):")

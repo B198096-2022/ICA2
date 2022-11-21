@@ -117,7 +117,7 @@ def sampleorg(taxon):  #sampleorg('txid4890')
             seqlength = seqlength.append([seqlengthapp])
             counter = counter + 1
             #And finally make the dictionary with all of the columns as the series
-            #And return the dataframe 
+            #And return the dataframe
     seqdf = pd.DataFrame( { 'ID' : idser, 'Genus' : genusser, 'Species' : speciesser, 'Header' : headser, 'Sequence' : seqser, 'Taxon' : taxser, 'SeqLength' : seqlength} )
     return(seqdf)
 
